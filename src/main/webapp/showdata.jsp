@@ -4,6 +4,9 @@
     Author     : Nook
 --%>
 
+<%@page import="servlet.Drug"%>
+<%@page import="java.util.Locale.Category"%>
+<%@page import="java.util.ArrayList"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -12,6 +15,18 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>Hello World! ${requestScope['Hello']}</h1>
+        <h1>JSP Page </h1>
+        <table>
+        <%
+            ArrayList<Drug> list = (ArrayList<Drug>) request.getAttribute("drug");
+            for (Drug drug : list) {
+                out.println("<tr>");
+                out.println("<td>DrugId : "+drug.getDrugId()+"</td>");
+                out.println("<td>DrugCode : "+drug.getDrugCode()+"</td>");
+                out.println("<td>DrugName : "+drug.getDrugname()+"</td>");         
+                out.println("<tr>");
+            }
+        %>
+        </table>
     </body>
 </html>

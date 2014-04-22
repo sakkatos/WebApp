@@ -26,14 +26,57 @@ import javax.sql.DataSource;
  *
  * @author Nook
  */
-@Resource(lookup = "/jdbc/oracle")
 
 public class NewServlet extends HttpServlet {
 
-    @Resource(lookup = "jdbc/oracle")
+    @Resource(lookup = "jdbc/oracle") 
     private DataSource datasource;
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        List<Drug> drugs = new ArrayList<>();
+        response.setContentType("text/html;charset=UTF-8");
+        try (Connection connection = datasource.getConnection()) {
+            Statement statement = connection.createStatement();
+            String keyword = request.getParameter("drugcode");
+            String sql = "Select * From DO_ITEM Where DRUGCODE LIKE '"+keyword+"%'";
+            ResultSet resultQuery = statement.executeQuery(sql);
+//            ResultSet resultQuery = statement.executeQuery("Select * From DO_ITEM");
+            while (resultQuery.next()) {
+                Drug drug = new Drug();
+                drug.setDrugname(resultQuery.getString("NAME"));
+                drug.setDrugCode(resultQuery.getString("DRUGCODE"));
+                drug.setDrugId(resultQuery.getInt("ID"));
+                drugs.add(drug);
+            }
+//            request.;
+
+        } catch (SQLException ex) {
+            Logger.getLogger(NewServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        request.setAttribute("drug", drugs);
+        request.getRequestDispatcher("showdata.jsp").forward(request, response);
+    }
+
+  
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+    
+      protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         List<Drug> drugs = new ArrayList<>();
         response.setContentType("text/html;charset=UTF-8");
@@ -55,44 +98,5 @@ public class NewServlet extends HttpServlet {
         }
         request.getRequestDispatcher("showdata.jsp").forward(request, response);
     }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
 
 }
